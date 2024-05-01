@@ -1,14 +1,18 @@
 extends layout
 
 block content
-  h2(class="center") #{trusted.name} Workouts
+  <h2 class=center> My Workouts </h2>
+  li.no-bullet
 
   ul
-    if myWorks && myWorks.length > 0
-      each workout in myWorks
-        li #{workout.userName}: #{workout.workoutName} -
-          each exerciseKey in Object.keys(workout.exercises)
-            - if exerciseKey !== 'length'
-              span= workout.exercises[exerciseKey]
-    else
-      li No workouts found
+      if (workouts && workouts.length > 0)
+        each workout in workouts
+          li= workout.userName + ': '
+            each exerciseKey in Object.keys(workout.exercises)
+              - if(exerciseKey !== 'length')
+              = workout.exercises[exerciseKey] + '   '
+        li.no-bullet
+      else
+        li No workouts found for user
+      li.no-bullet
+      

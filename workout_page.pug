@@ -1,3 +1,72 @@
-extends layout
-block content
-   <h2 class=center> Welcome, This is the workout creation page </h2>
+doctype html
+html(lang="en")
+  head
+    title Workout Page
+  body
+    form(action="/workout/save", method="post")
+    h2 Welcome, #{username}! Create your workouts HERE! 
+    h2 Chest Exercises
+    if chestExs.length
+      ul
+        each exercise in chestExs
+          li
+            span= exercise.Name
+            form(action="/workout/add", method="post", style="display: inline;")
+              input(type="hidden", name="Name", value=exercise.Name)
+              input(type="hidden", name="Group", value="Chest")
+              button(type="submit") Add to Workout
+    else
+      p No chest exercises found
+
+    h2 Back Exercises
+    if backExs.length
+      ul
+        each exercise in backExs
+          li
+            span= exercise.Name
+            form(action="/workout/add", method="post", style="display: inline;")
+              input(type="hidden", name="Name", value=exercise.Name)
+              input(type="hidden", name="Group", value="Back")
+              button(type="submit") Add to Workout
+    else
+      p No back exercises found
+
+    h2 Shoulder/Arm Exercises
+    if armExs.length
+      ul
+        each exercise in armExs
+          li
+            span= exercise.Name
+            form(action="/workout/add", method="post", style="display: inline;")
+              input(type="hidden", name="Name", value=exercise.Name)
+              input(type="hidden", name="Group", value="Shoulders/Arms")
+              button(type="submit") Add to Workout
+    else
+      p No shoulder/arm exercises found
+
+    h2 Leg Exercises
+    if legExs.length
+      ul
+        each exercise in legExs
+          li
+            span= exercise.Name
+            form(action="/workout/add", method="post", style="display: inline;")
+              input(type="hidden", name="Name", value=exercise.Name)
+              input(type="hidden", name="Group", value="Legs")
+              button(type="submit") Add to Workout
+    else
+      p No leg exercises found
+
+    h2 Workout Summary
+    if workout && workout.exercises
+      ul
+        each key, value in workout.exercises
+          li= workout.exercises[value]
+
+    else
+      p No exercises added to the workout yet
+
+    form(action="/workout/save", method="post")
+      button(type="submit") Save Workout
+    form(action="/workout/reset", method="post")
+      button(type="submit") Reset Workout

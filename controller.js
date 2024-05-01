@@ -22,6 +22,26 @@ app.listen(3000, async ()=> {
     console.log("Server is running...");
 });
 
+async function docifyWorkout(userName, workoutName, exercises) {
+    let workoutDoc = {
+      userName: userName,
+      workoutName: workoutName,
+      exercises: exercises
+    };
+  
+  
+    return workoutDoc;
+  }
+
+  function convertToIndexedObject(exercisesArray) {
+    let indexedExercises = {};
+    exercisesArray.forEach((exercise, index) => {
+      indexedExercises[index.toString()] = exercise;
+    });
+    return indexedExercises;
+  }
+  
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -57,11 +77,79 @@ app.get('/login', function (req, res){
 	res.render('login_page')
 });
 
-app.get('/workout', function (req, res) {
-    if(req.session.user){
-        console.log(req.session.user.username);
-    res.render('workout_page', { username: req.session.user.username });
+app.get('/workout/', async function (req, res, next) {
+	const exerciseCol = database.collection('exercises');
+	try {
+	  const chestExs = await exerciseCol.find({ Group: 'Chest' }).toArray();
+    const backExs = await exerciseCol.find({ Group: 'Back' }).toArray();
+    const armExs = await exerciseCol.find({ Group: 'Shoulders/Arms' }).toArray();
+    const legExs = await exerciseCol.find({ Group: 'Legs' }).toArray();
+    let workout = req.session.workout;
+
+	  res.render('workout_page', { chestExs, backExs, armExs, legExs, workout, username: req.session.user.username });
+	} catch (e) {
+	  console.log('Error!', e);
+	  next(e);
+	}
+  });
+
+  app.get('/commWorkout', async function (req, res, next){
+    try {
+        let workoutsCursor = await database.get("workoutWebsite").collection("workouts").find();
+        let workouts = await workoutsCursor.toArray();
+        console.log(workouts);
+        res.render('commWorkout', { workouts: workouts });
+    } catch (e) {
+        console.log("Error!", e);
+        next(e);
     }
+  });
+
+  app.get('/myWorkout', async function (req, res, next){
+    try {
+        let  result = {name: req.session.user.username};
+        let workoutsCursor = await database.get("workoutWebsite").collection("workouts").find({userName: result.name});
+        let workouts = await workoutsCursor.toArray();
+        console.log(workouts);
+        res.render('myWorkout', { workouts: workouts });
+    } catch (e) {
+        console.log("Error!", e);
+        next(e);
+    }
+  });
+
+  
+  app.post('/workout/add', async (req, res) => {
+    const { Name } = req.body;
+    let workout = req.session.workout || { exercises: [] };
+    workout.exercises.push(Name);
+    req.session.workout = workout;
+    console.log(req.session.workout);
+    res.redirect('/workout/');
+  });
+  
+
+  app.post('/workout/save', async (req, res) => {
+    const workoutName = req.session.workoutName;
+    const workout = req.session.workout;
+    
+    const indexedExercises = convertToIndexedObject(workout.exercises);
+  
+    try {
+       let workoutDoc = await docifyWorkout(req.session.user.username, workoutName, indexedExercises )
+        await database.collection('workouts').insertOne(workoutDoc);
+        delete req.session.workout;
+        res.redirect('/commWorkout/');
+  
+    } catch (err) {
+        console.error('Error saving workout:', err);
+        res.status(500).json({ success: false, message: 'Error saving workout' });
+    }
+  });
+
+app.post('/workout/reset', (req, res) => {
+  delete req.session.workout;
+  res.redirect('/workout/');
 });
 
 app.get('/commWorkout', function (req, res) {

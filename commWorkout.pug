@@ -2,12 +2,11 @@ extends layout
 
 block content
   <h2 class=center> Community Workouts </h2>
-  li.no-bullet
-  
+
   ul
     if (workouts && workouts.length > 0)
       each workout in workouts
-        li= workout.userName + ': ' + workout.workoutName + ' - ' 
+        li= workout.userName + ': ' 
           each exerciseKey in Object.keys(workout.exercises)
             - if(exerciseKey !== 'length')
               = workout.exercises[exerciseKey] + '   '

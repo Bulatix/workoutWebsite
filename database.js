@@ -79,6 +79,14 @@ database.close = async function(){
 	console.log(e.message);
     }
  }
+
+ database.collection =  function(collectionName) {
+    if (!myDB) {
+        throw new Error("Database connection not established.");
+    }
+    return myDB.collection(collectionName);
+};
+
 module.exports = { database, collection };
 
 
