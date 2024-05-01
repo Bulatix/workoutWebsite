@@ -25,26 +25,15 @@ app.listen(3000, async ()=> {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-//app.use(session({
-//	secret:'shhhhh',
-//	saveUninitialized: false,
-//	resave: false
-//}));
+app.use(session({
+    secret: 'cho', // Change this to a secret key of your choice
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set secure to true if using HTTPS
+}));
 
 app.set('views', './views');
 app.set('view engine', 'pug');
-
-app.get('/commWorkout', async function (req, res, next){
-    try {
-        let workoutsCursor = await database.get("workoutWebsite").collection("workouts").find();
-        let workouts = await workoutsCursor.toArray();
-        console.log(workouts);
-        res.render('commWorkout', { workouts: workouts });
-    } catch (e) {
-        console.log("Error!", e);
-        next(e);
-    }
-});
 
 //app.get('/myWorkout', async function (req, res, next) {
 //   try {
@@ -68,8 +57,11 @@ app.get('/login', function (req, res){
 	res.render('login_page')
 });
 
-app.get('/workout', function (req, res){
-	res.render('workout_page')
+app.get('/workout', function (req, res) {
+    if(req.session.user){
+        console.log(req.session.user.username);
+    res.render('workout_page', { username: req.session.user.username });
+    }
 });
 
 app.get('/commWorkout', function (req, res) {
@@ -111,6 +103,34 @@ app.post('/signup', async (req, res) => {
     } catch (error) {
         console.error("Error accessing database:", error);
         res.status(500).send("Error accessing database");
+    }
+});
+
+app.post('/login', async (req, res) => {
+
+    const db = database.get('workoutWebsite');
+    // Specify the name of the collection you want to insert into
+    const collectionName = 'users';
+
+    // Extract username and password from the request body
+    const data = {
+        name: req.body.username,
+        password: req.body.password
+    }
+    const user = await db.collection(collectionName).findOne(data);
+    if(!user){
+        res.send("Incorrect username and password")
+    }
+    else{
+        if(req.body.password == user.password)
+        {
+            req.session.user = {
+                _id: user._id,
+                username: user.name
+                // Add more user information if needed
+            };
+        res.redirect('/workout');
+        }
     }
 });
 
