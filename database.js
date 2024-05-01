@@ -1,3 +1,5 @@
+let mongoose = require('mongoose');
+
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb://127.0.0.1/workoutWebsite";
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -41,8 +43,21 @@ var connect = async function(dbName){
 	}
     } catch(e){
 	console.log(e.message);
-    }
+    } 
 }
+
+const LoginSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+});
+
+const collection = mongoose.model("users", LoginSchema);
 //Call get("<name_of_your_DB"> to initialize the db connection
 //after that you can can call get() to just get the connection anywhere
 database.get = function(dbName){
@@ -64,7 +79,7 @@ database.close = async function(){
 	console.log(e.message);
     }
  }
-module.exports = database;
+module.exports = { database, collection };
 
 
 

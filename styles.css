@@ -14,4 +14,18 @@ h1 {
   .center {
     text-align: center;
   }
+
+  body {
+    background-color: lightblue;
+  }
+
+  .info {
+    left: 0;
+    line-height: 200px;
+    margin-top: 150px;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    width: 100%;
+}
   

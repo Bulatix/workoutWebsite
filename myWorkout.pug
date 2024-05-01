@@ -1,4 +1,14 @@
 extends layout
 
 block content
-  <h2 class=center> User Workouts </h2>
+  h2(class="center") #{trusted.name} Workouts
+
+  ul
+    if myWorks && myWorks.length > 0
+      each workout in myWorks
+        li #{workout.userName}: #{workout.workoutName} -
+          each exerciseKey in Object.keys(workout.exercises)
+            - if exerciseKey !== 'length'
+              span= workout.exercises[exerciseKey]
+    else
+      li No workouts found
